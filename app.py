@@ -154,6 +154,10 @@ def success():
     return render_template('success.html')
 
 # Rotas administrativas
+@app.route('/adm')
+def admin_redirect():
+    return redirect(url_for('admin_login'))
+
 @app.route('/adm/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
@@ -239,6 +243,30 @@ def admin_edit_registration(registration_id):
         return redirect(url_for('admin_dashboard'))
     
     return render_template('admin/edit_registration.html', form=form, registration=registration)
+
+# Rota temporária para inicializar o banco de dados (remover após usar)
+@app.route('/init-db')
+def init_database():
+    # Verificar se a requisição vem da Vercel
+    if not request.headers.get('x-vercel-deployment-url'):
+        return 'Acesso não autorizado', 403
+        
+    try:
+        db.drop_all()
+        db.create_all()
+        
+        # Criar admin padrão
+        if not Admin.query.filter_by(email='admin@pandorapro.com').first():
+            admin = Admin(
+                email='admin@pandorapro.com',
+                password=generate_password_hash('admin123')
+            )
+            db.session.add(admin)
+            db.session.commit()
+        
+        return 'Banco de dados inicializado com sucesso!'
+    except Exception as e:
+        return f'Erro: {str(e)}', 500
 
 if __name__ == '__main__':
     with app.app_context():
