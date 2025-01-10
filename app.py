@@ -50,8 +50,7 @@ class RegistrationForm(FlaskForm):
 class Admin(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    password = db.Column(db.String(200), nullable=False)
 
 class Registration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +58,7 @@ class Registration(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    password = db.Column(db.String(200), nullable=False)  
+    password = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     assistant = db.relationship('Assistant', backref='registration', uselist=False)
 
@@ -85,7 +84,12 @@ class Assistant(db.Model):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return Admin.query.get(int(user_id))
+    # Primeiro tenta carregar um admin
+    admin = Admin.query.get(int(user_id))
+    if admin:
+        return admin
+    # Se não encontrar admin, tenta carregar um registro normal
+    return Registration.query.get(int(user_id))
 
 # Rotas públicas
 @app.route('/')
@@ -150,26 +154,30 @@ def success():
     return render_template('success.html')
 
 # Rotas administrativas
-@app.route('/adm', methods=['GET', 'POST'])
+@app.route('/adm/login', methods=['GET', 'POST'])
 def admin_login():
-    if current_user.is_authenticated:
-        return redirect(url_for('admin_dashboard'))
-    
-    form = LoginForm()
-    if form.validate_on_submit():
-        admin = Admin.query.filter_by(email=form.email.data).first()
-        if admin and check_password_hash(admin.password_hash, form.password.data):
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        admin = Admin.query.filter_by(email=email).first()
+        
+        if admin and check_password_hash(admin.password, password):
             login_user(admin)
-            flash('Login realizado com sucesso!', 'success')
             return redirect(url_for('admin_dashboard'))
-        flash('Email ou senha inválidos.', 'danger')
+        else:
+            flash('Email ou senha inválidos', 'danger')
     
-    return render_template('admin/login.html', form=form)
+    return render_template('admin/login.html')
 
 @app.route('/adm/dashboard')
 @login_required
 def admin_dashboard():
-    registrations = Registration.query.all()
+    if not isinstance(current_user, Admin):
+        logout_user()
+        return redirect(url_for('admin_login'))
+        
+    registrations = Registration.query.order_by(Registration.created_at.desc()).all()
     return render_template('admin/dashboard.html', registrations=registrations)
 
 @app.route('/adm/logout')
@@ -242,7 +250,7 @@ if __name__ == '__main__':
         if not Admin.query.filter_by(email='admin@pandorapro.com').first():
             admin = Admin(
                 email='admin@pandorapro.com',
-                password_hash=generate_password_hash('admin123')
+                password=generate_password_hash('admin123')
             )
             db.session.add(admin)
             db.session.commit()
