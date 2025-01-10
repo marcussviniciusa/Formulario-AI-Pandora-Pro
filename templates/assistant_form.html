@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Configurar Assistente Virtual - Pandora Pro{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="text-center">Configurar Assistente Virtual</h2>
+                    <p class="text-muted text-center mb-0">Empresa: {{ registration.company_name }}</p>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Nome do Assistente*</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="specialization" class="form-label">Especialização*</label>
+                            <input type="text" class="form-control" id="specialization" name="specialization" required>
+                            <small class="text-muted">Ex: Vendas, Suporte, Atendimento ao Cliente</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="target_audience" class="form-label">Público-alvo*</label>
+                            <textarea class="form-control" id="target_audience" name="target_audience" rows="3" required></textarea>
+                            <small class="text-muted">Descreva detalhadamente seu público-alvo</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="personality" class="form-label">Personalidade do Assistente*</label>
+                            <textarea class="form-control" id="personality" name="personality" rows="3" required></textarea>
+                            <small class="text-muted">Descreva como seu assistente deve se comportar e se comunicar</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="achievements" class="form-label">Conquistas e Credenciais</label>
+                            <textarea class="form-control" id="achievements" name="achievements" rows="3"></textarea>
+                            <small class="text-muted">Liste prêmios, certificações e conquistas relevantes</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="products_services" class="form-label">Produtos e Serviços*</label>
+                            <textarea class="form-control" id="products_services" name="products_services" rows="4" required></textarea>
+                            <small class="text-muted">Descreva detalhadamente seus produtos/serviços</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="initial_question" class="form-label">Pergunta Inicial*</label>
+                            <textarea class="form-control" id="initial_question" name="initial_question" rows="2" required></textarea>
+                            <small class="text-muted">Como o assistente deve iniciar a conversa?</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="client_pain_points" class="form-label">Pontos de Dor dos Clientes*</label>
+                            <textarea class="form-control" id="client_pain_points" name="client_pain_points" rows="3" required></textarea>
+                            <small class="text-muted">Quais problemas seus clientes enfrentam?</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="solutions" class="form-label">Soluções Oferecidas*</label>
+                            <textarea class="form-control" id="solutions" name="solutions" rows="3" required></textarea>
+                            <small class="text-muted">Como seus produtos/serviços resolvem esses problemas?</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="differentials" class="form-label">Diferenciais*</label>
+                            <textarea class="form-control" id="differentials" name="differentials" rows="3" required></textarea>
+                            <small class="text-muted">O que torna sua empresa única?</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="purchase_process" class="form-label">Processo de Compra*</label>
+                            <textarea class="form-control" id="purchase_process" name="purchase_process" rows="3" required></textarea>
+                            <small class="text-muted">Descreva o passo a passo para adquirir seus produtos/serviços</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="common_objections" class="form-label">Objeções Comuns</label>
+                            <textarea class="form-control" id="common_objections" name="common_objections" rows="3"></textarea>
+                            <small class="text-muted">Quais são as principais dúvidas/objeções dos clientes?</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="purchase_links" class="form-label">Links de Compra</label>
+                            <textarea class="form-control" id="purchase_links" name="purchase_links" rows="2"></textarea>
+                            <small class="text-muted">Links para páginas de compra, catálogos, etc.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="urgency" class="form-label">Elementos de Urgência</label>
+                            <textarea class="form-control" id="urgency" name="urgency" rows="2"></textarea>
+                            <small class="text-muted">Promoções, descontos por tempo limitado, etc.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_methods" class="form-label">Formas de Pagamento*</label>
+                            <textarea class="form-control" id="payment_methods" name="payment_methods" rows="2" required></textarea>
+                            <small class="text-muted">Liste todas as formas de pagamento aceitas</small>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Criar Assistente Virtual</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

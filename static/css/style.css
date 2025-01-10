@@ -1,0 +1,197 @@
+:root {
+    --primary-color: #6366f1;
+    --secondary-color: #4f46e5;
+    --background-color: #f9fafb;
+    --text-color: #1f2937;
+    --border-color: #e5e7eb;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #2C334A !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.navbar-brand img {
+    height: 35px;
+    transition: transform 0.2s;
+}
+
+.navbar-brand:hover img {
+    transform: scale(1.05);
+}
+
+.navbar-nav .nav-link {
+    color: #ffffff !important;  /* White text color */
+    font-weight: 600;          /* Bolder font weight */
+}
+
+/* Optional: Change color on hover */
+.navbar-nav .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8) !important;  /* Slightly transparent white on hover */
+}
+
+.navbar-brand {
+    color: #ffffff !important;  /* Using the same dark blue from your previous styles */
+    font-weight: 600;          /* Making it semi-bold */
+}
+
+/* Card Styling */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+/* .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+} */
+
+/* Form Styling */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+/* Button Styling */
+.btn-primary {
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-1px);
+}
+
+/* Alert Styling */
+.alert {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Container Spacing */
+.container {
+    padding: 2rem 1rem;
+}
+
+/* Section Headers */
+.section-header {
+    color: var(--text-color);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+}
+
+/* Success Icon Animation */
+.success-icon {
+    color: #10B981;
+    font-size: 4rem;
+    animation: scaleIn 0.5s ease-out;
+}
+
+@keyframes scaleIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Custom Shadows */
+.shadow-custom {
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+/* Responsive Padding */
+@media (min-width: 768px) {
+    .container {
+        padding: 3rem 2rem;
+    }
+}
+
+/* Form Label Styling */
+.form-label {
+    font-weight: 500;
+    color: #4B5563;
+    margin-bottom: 0.5rem;
+}
+
+/* Input Group Styling */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+/* Helper Text */
+.form-text {
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Success Page Specific */
+.success-page {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.success-page .icon-container {
+    margin-bottom: 2rem;
+}
+
+/* Dashboard Specific */
+.dashboard-card {
+    height: 100%;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dashboard-stat {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Modal Styling */
+.modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1.5rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1.5rem;
+}

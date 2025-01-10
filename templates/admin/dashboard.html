@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Pandora Pro{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="section-header">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h2>
+        </div>
+    </div>
+
+    <div class="card shadow-custom mb-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Data de Cadastro</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registration in registrations %}
+                        <tr>
+                            <td>{{ registration.company_name }}</td>
+                            <td>{{ registration.name }}</td>
+                            <td>{{ registration.email }}</td>
+                            <td>{{ registration.phone }}</td>
+                            <td>{{ registration.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-primary me-2" 
+                                            onclick="viewAssistant({{ registration.id }})">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <a href="{{ url_for('admin_edit_registration', registration_id=registration.id) }}" 
+                                       class="btn btn-sm btn-warning me-2">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-sm btn-danger" 
+                                            onclick="deleteRegistration({{ registration.id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalhes do Assistente -->
+<div class="modal fade" id="assistantModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Detalhes do Assistente Virtual</h5>
+                <button type="button" class="btn btn-primary ms-auto me-2" onclick="copyAssistantDetails()">
+                    <i class="fas fa-copy me-2"></i>Copiar Tudo
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="assistantDetails">
+                    <!-- Conteúdo será preenchido via JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Exclusão</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este registro? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">Excluir</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+let deleteRegistrationId = null;
+const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+function viewAssistant(registrationId) {
+    fetch(`/adm/assistant/${registrationId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados do assistente');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.assistant) {
+                const fields = [
+                    ['Nome do Assistente', data.assistant.name],
+                    ['Especialização', data.assistant.specialization],
+                    ['Público-alvo', data.assistant.target_audience],
+                    ['Personalidade', data.assistant.personality],
+                    ['Produtos e Serviços', data.assistant.products_services],
+                    ['Pergunta Inicial', data.assistant.initial_question],
+                    ['Conquistas', data.assistant.achievements],
+                    ['Pontos de Dor', data.assistant.client_pain_points],
+                    ['Soluções', data.assistant.solutions],
+                    ['Diferenciais', data.assistant.differentials],
+                    ['Processo de Compra', data.assistant.purchase_process],
+                    ['Objeções Comuns', data.assistant.common_objections],
+                    ['Links de Compra', data.assistant.purchase_links],
+                    ['Urgência', data.assistant.urgency],
+                    ['Formas de Pagamento', data.assistant.payment_methods]
+                ];
+
+                const details = `
+                    <div class="row">
+                        <div class="col-12">
+                            ${fields.map(([label, value]) => `
+                                <div class="mb-4">
+                                    <h5 class="mb-2">${label}</h5>
+                                    <p class="mb-0">${value || '-'}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                
+                document.getElementById('assistantDetails').innerHTML = details;
+                new bootstrap.Modal(document.getElementById('assistantModal')).show();
+            } else {
+                alert('Assistente não encontrado');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao carregar dados do assistente');
+        });
+}
+
+function copyAssistantDetails() {
+    const detailsDiv = document.getElementById('assistantDetails');
+    const headers = detailsDiv.querySelectorAll('h5');
+    const paragraphs = detailsDiv.querySelectorAll('p');
+    let textToCopy = '';
+    
+    headers.forEach((header, index) => {
+        textToCopy += `${header.textContent.trim()}\n${paragraphs[index].textContent.trim()}\n\n`;
+    });
+    
+    navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+            // Feedback visual
+            const copyBtn = document.querySelector('.modal-header .btn-primary');
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<i class="fas fa-check me-2"></i>Copiado!';
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        })
+        .catch(err => {
+            console.error('Erro ao copiar texto:', err);
+            alert('Erro ao copiar texto. Por favor, tente novamente.');
+        });
+}
+
+function deleteRegistration(registrationId) {
+    deleteRegistrationId = registrationId;
+    deleteModal.show();
+}
+
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (deleteRegistrationId) {
+        fetch(`/adm/registration/${deleteRegistrationId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao excluir registro');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Erro ao excluir registro');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Erro ao excluir registro');
+        });
+    }
+    deleteModal.hide();
+});
+</script>
+{% endblock %}
