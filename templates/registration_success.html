@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Registro Concluído - Pandora Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-custom">
+                <div class="card-body text-center p-5">
+                    <img src="{{ url_for('static', filename='img/logo webp.webp') }}" 
+                         alt="Pandora Pro Logo" 
+                         class="img-fluid mb-4" 
+                         style="max-width: 180px;">
+                    
+                    <h1 class="display-4 mb-4">Registro Concluído!</h1>
+                    <p class="lead mb-5">Seu cadastro foi realizado com sucesso. O que você gostaria de fazer agora?</p>
+                    
+                    <div class="d-grid gap-3 col-lg-8 mx-auto">
+                        <a href="{{ url_for('assistant_form') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-robot me-2"></i>Criar Minha IA Personalizada
+                        </a>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-home me-2"></i>Voltar para a Página Inicial
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

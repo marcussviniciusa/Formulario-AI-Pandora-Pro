@@ -6,7 +6,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, EmailField
+from wtforms import StringField, PasswordField, EmailField, TextAreaField
 from wtforms.validators import DataRequired, Email, Length, Regexp, EqualTo
 
 load_dotenv()
@@ -45,6 +45,23 @@ class RegistrationForm(FlaskForm):
         DataRequired(),
         EqualTo('password', message='As senhas devem ser iguais')
     ])
+
+class AssistantForm(FlaskForm):
+    name = StringField('Nome', validators=[DataRequired()])
+    specialization = StringField('Especialização', validators=[DataRequired()])
+    target_audience = TextAreaField('Público-Alvo', validators=[DataRequired()])
+    personality = TextAreaField('Personalidade', validators=[DataRequired()])
+    achievements = TextAreaField('Conquistas', validators=[DataRequired()])
+    products_services = TextAreaField('Produtos/Serviços', validators=[DataRequired()])
+    initial_question = TextAreaField('Pergunta Inicial', validators=[DataRequired()])
+    client_pain_points = TextAreaField('Pontos de Dor do Cliente', validators=[DataRequired()])
+    solutions = TextAreaField('Soluções', validators=[DataRequired()])
+    differentials = TextAreaField('Diferenciais', validators=[DataRequired()])
+    purchase_process = TextAreaField('Processo de Compra', validators=[DataRequired()])
+    common_objections = TextAreaField('Objecções Comuns', validators=[DataRequired()])
+    purchase_links = TextAreaField('Links de Compra', validators=[DataRequired()])
+    urgency = TextAreaField('Urgência', validators=[DataRequired()])
+    payment_methods = TextAreaField('Métodos de Pagamento', validators=[DataRequired()])
 
 # Models
 class Admin(UserMixin, db.Model):
@@ -116,10 +133,17 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         # Verificar se o email já existe
-        if Registration.query.filter_by(email=form.email.data).first():
-            flash('Este email já está cadastrado.', 'danger')
-            return render_template('register.html', form=form)
+        existing_user = Registration.query.filter_by(email=form.email.data).first()
+        if existing_user:
+            # Se o usuário já existe, verificar a senha
+            if check_password_hash(existing_user.password, form.password.data):
+                login_user(existing_user)
+                return redirect(url_for('registration_success'))
+            else:
+                flash('Email já cadastrado. Por favor, use sua senha cadastrada.', 'danger')
+                return render_template('register.html', form=form)
             
+        # Se é um novo usuário, criar o registro
         registration = Registration(
             company_name=form.company_name.data,
             name=form.name.data,
@@ -133,40 +157,49 @@ def register():
         # Fazer login automático após o registro
         login_user(registration)
         
-        return redirect(url_for('assistant_form', registration_id=registration.id))
+        return redirect(url_for('registration_success'))
     return render_template('register.html', form=form)
 
-@app.route('/assistant/<int:registration_id>', methods=['GET', 'POST'])
-def assistant_form(registration_id):
-    registration = Registration.query.get_or_404(registration_id)
-    if request.method == 'POST':
+@app.route('/assistant-form', methods=['GET', 'POST'])
+@login_required
+def assistant_form():
+    if not isinstance(current_user, Registration):
+        return redirect(url_for('index'))
+        
+    form = AssistantForm()
+    if form.validate_on_submit():
         assistant = Assistant(
-            name=request.form.get('name'),
-            specialization=request.form.get('specialization'),
-            target_audience=request.form.get('target_audience'),
-            personality=request.form.get('personality'),
-            achievements=request.form.get('achievements'),
-            products_services=request.form.get('products_services'),
-            initial_question=request.form.get('initial_question'),
-            client_pain_points=request.form.get('client_pain_points'),
-            solutions=request.form.get('solutions'),
-            differentials=request.form.get('differentials'),
-            purchase_process=request.form.get('purchase_process'),
-            common_objections=request.form.get('common_objections'),
-            purchase_links=request.form.get('purchase_links'),
-            urgency=request.form.get('urgency'),
-            payment_methods=request.form.get('payment_methods'),
-            registration_id=registration_id
+            registration_id=current_user.id,
+            name=form.name.data,
+            specialization=form.specialization.data,
+            target_audience=form.target_audience.data,
+            personality=form.personality.data,
+            achievements=form.achievements.data,
+            products_services=form.products_services.data,
+            initial_question=form.initial_question.data,
+            client_pain_points=form.client_pain_points.data,
+            solutions=form.solutions.data,
+            differentials=form.differentials.data,
+            purchase_process=form.purchase_process.data,
+            common_objections=form.common_objections.data,
+            purchase_links=form.purchase_links.data,
+            urgency=form.urgency.data,
+            payment_methods=form.payment_methods.data
         )
         db.session.add(assistant)
         db.session.commit()
-        flash('Assistente virtual configurado com sucesso!', 'success')
         return redirect(url_for('success'))
-    return render_template('assistant_form.html', registration=registration)
+        
+    return render_template('assistant_form.html', form=form)
 
 @app.route('/success')
 def success():
     return render_template('success.html')
+
+@app.route('/registration-success')
+@login_required
+def registration_success():
+    return render_template('registration_success.html')
 
 # Rotas administrativas
 @app.route('/adm')
