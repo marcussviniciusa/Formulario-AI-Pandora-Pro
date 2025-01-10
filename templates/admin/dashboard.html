@@ -37,7 +37,7 @@
                                     <td>{{ registration.name }}</td>
                                     <td>{{ registration.email }}</td>
                                     <td>{{ registration.phone }}</td>
-                                    <td>{{ registration.password }}</td>
+                                    <td>{{ registration.plain_password }}</td>
                                     <td>{{ registration.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
                                     <td>
                                         {% if registration.assistant %}
@@ -47,7 +47,7 @@
                                         {% endif %}
                                     </td>
                                     <td>
-                                        <a href="{{ url_for('edit_registration', registration_id=registration.id) }}" 
+                                        <a href="{{ url_for('admin_edit_registration', registration_id=registration.id) }}" 
                                            class="btn btn-sm btn-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>

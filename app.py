@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -12,14 +12,11 @@ from wtforms.validators import DataRequired, Email, Length, Regexp, EqualTo
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
+app.config['SECRET_KEY'] = 'sua-chave-secreta-aqui'
 
-# Database configuration
-DATABASE_URL = os.getenv('POSTGRES_URL', os.getenv('DATABASE_URL'))
-if DATABASE_URL and DATABASE_URL.startswith('postgres://'):
-    DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL or 'sqlite:///database.db'
+# Configuração do PostgreSQL
+POSTGRES_URI = "postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres"
+app.config['SQLALCHEMY_DATABASE_URI'] = POSTGRES_URI
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -76,6 +73,7 @@ class Registration(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20), nullable=False)
     password = db.Column(db.String(200), nullable=False)
+    password_hash = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     assistant = db.relationship('Assistant', backref='registration', uselist=False)
 
@@ -136,7 +134,7 @@ def register():
         existing_user = Registration.query.filter_by(email=form.email.data).first()
         if existing_user:
             # Se o usuário já existe, verificar a senha
-            if check_password_hash(existing_user.password, form.password.data):
+            if check_password_hash(existing_user.password_hash, form.password.data):
                 login_user(existing_user)
                 return redirect(url_for('registration_success'))
             else:
@@ -149,7 +147,8 @@ def register():
             name=form.name.data,
             email=form.email.data,
             phone=form.phone.data,
-            password=generate_password_hash(form.password.data)
+            password=form.password.data,
+            password_hash=generate_password_hash(form.password.data)
         )
         db.session.add(registration)
         db.session.commit()
@@ -160,9 +159,9 @@ def register():
         return redirect(url_for('registration_success'))
     return render_template('register.html', form=form)
 
-@app.route('/assistant-form', methods=['GET', 'POST'])
+@app.route('/ia-formulario', methods=['GET', 'POST'])
 @login_required
-def assistant_form():
+def ia_formulario():
     if not isinstance(current_user, Registration):
         return redirect(url_for('index'))
         
@@ -229,7 +228,12 @@ def admin_dashboard():
         logout_user()
         return redirect(url_for('admin_login'))
         
+    # Buscar todos os registros e suas senhas originais
     registrations = Registration.query.order_by(Registration.created_at.desc()).all()
+    for reg in registrations:
+        # Armazenar a senha sem hash no atributo temporário
+        reg.plain_password = reg.password
+    
     return render_template('admin/dashboard.html', registrations=registrations)
 
 @app.route('/adm/logout')
@@ -275,22 +279,31 @@ def admin_delete_registration(registration_id):
     db.session.commit()
     return jsonify({'success': True})
 
-@app.route('/adm/registration/<int:registration_id>/edit', methods=['GET', 'POST'])
+@app.route('/adm/edit/<int:registration_id>', methods=['GET', 'POST'])
 @login_required
 def admin_edit_registration(registration_id):
+    if not isinstance(current_user, Admin):
+        return redirect(url_for('admin_login'))
+        
     registration = Registration.query.get_or_404(registration_id)
-    form = RegistrationForm(obj=registration)
     
-    if form.validate_on_submit():
-        registration.company_name = form.company_name.data
-        registration.name = form.name.data
-        registration.email = form.email.data
-        registration.phone = form.phone.data
+    if request.method == 'POST':
+        registration.company_name = request.form.get('company_name')
+        registration.name = request.form.get('name')
+        registration.email = request.form.get('email')
+        registration.phone = request.form.get('phone')
+        
+        # Se uma nova senha foi fornecida, atualize-a
+        new_password = request.form.get('password')
+        if new_password:
+            registration.password = new_password
+            registration.password_hash = generate_password_hash(new_password)
+            
         db.session.commit()
         flash('Registro atualizado com sucesso!', 'success')
         return redirect(url_for('admin_dashboard'))
     
-    return render_template('admin/edit_registration.html', form=form, registration=registration)
+    return render_template('admin/edit_registration.html', registration=registration)
 
 # Rota temporária para inicializar o banco de dados (remover após usar)
 @app.route('/init-db')

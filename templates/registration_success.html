@@ -14,14 +14,11 @@
                          style="max-width: 180px;">
                     
                     <h1 class="display-4 mb-4">Registro Concluído!</h1>
-                    <p class="lead mb-5">Seu cadastro foi realizado com sucesso. O que você gostaria de fazer agora?</p>
+                    <p class="lead mb-5">Seu cadastro foi realizado com sucesso. Clique no botão abaixo para criar sua IA personalizada.</p>
                     
-                    <div class="d-grid gap-3 col-lg-8 mx-auto">
-                        <a href="{{ url_for('assistant_form') }}" class="btn btn-primary btn-lg">
+                    <div class="d-grid col-lg-8 mx-auto">
+                        <a href="{{ url_for('ia_formulario') }}" class="btn btn-primary btn-lg">
                             <i class="fas fa-robot me-2"></i>Criar Minha IA Personalizada
-                        </a>
-                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary btn-lg">
-                            <i class="fas fa-home me-2"></i>Voltar para a Página Inicial
                         </a>
                     </div>
                 </div>
