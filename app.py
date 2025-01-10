@@ -15,8 +15,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'sua-chave-secreta-aqui'
 
 # Configuração do PostgreSQL
-POSTGRES_URI = "postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres"
-app.config['SQLALCHEMY_DATABASE_URI'] = POSTGRES_URI
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('POSTGRES_URI', 'postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)

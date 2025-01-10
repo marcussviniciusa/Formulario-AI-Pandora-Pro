@@ -4,17 +4,9 @@
         {
             "src": "app.py",
             "use": "@vercel/python"
-        },
-        {
-            "src": "static/**",
-            "use": "@vercel/static"
         }
     ],
     "routes": [
-        {
-            "src": "/static/(.*)",
-            "dest": "/static/$1"
-        },
         {
             "src": "/(.*)",
             "dest": "app.py"
@@ -23,6 +15,6 @@
     "env": {
         "POSTGRES_URI": "postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres",
         "FLASK_ENV": "production",
-        "FLASK_APP": "wsgi.py"
+        "FLASK_APP": "app.py"
     }
 }
