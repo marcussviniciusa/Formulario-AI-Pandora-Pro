@@ -52,7 +52,7 @@ class Admin(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
-class Registration(db.Model):
+class Registration(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     company_name = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
@@ -61,6 +61,21 @@ class Registration(db.Model):
     password = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     assistant = db.relationship('Assistant', backref='registration', uselist=False)
+
+    def get_id(self):
+        return str(self.id)
+
+    @property
+    def is_authenticated(self):
+        return True
+
+    @property
+    def is_active(self):
+        return True
+
+    @property
+    def is_anonymous(self):
+        return False
 
 class Assistant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
