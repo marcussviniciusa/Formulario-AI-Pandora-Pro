@@ -60,6 +60,27 @@
                             {% endif %}
                         </div>
 
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Senha</label>
+                            {{ form.password(class="form-control", placeholder="Digite sua senha") }}
+                            {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                    <div class="form-text text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="form-text">A senha deve ter pelo menos 6 caracteres</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label">Confirmar Senha</label>
+                            {{ form.confirm_password(class="form-control", placeholder="Confirme sua senha") }}
+                            {% if form.confirm_password.errors %}
+                                {% for error in form.confirm_password.errors %}
+                                    <div class="form-text text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="fas fa-user-plus me-2"></i>Cadastrar

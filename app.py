@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, EmailField
-from wtforms.validators import DataRequired, Email, Length, Regexp
+from wtforms.validators import DataRequired, Email, Length, Regexp, EqualTo
 
 load_dotenv()
 
@@ -33,11 +33,17 @@ class LoginForm(FlaskForm):
     password = PasswordField('Senha', validators=[DataRequired()])
 
 class RegistrationForm(FlaskForm):
-    company_name = StringField('Nome da Empresa', validators=[DataRequired(), Length(min=2, max=100)])
-    name = StringField('Nome', validators=[DataRequired(), Length(min=2, max=100)])
-    email = EmailField('Email', validators=[DataRequired(), Email()])
-    phone = StringField('Telefone', validators=[
-        Regexp(r'^\(\d{2}\) \d{5}-\d{4}$', message='Telefone deve estar no formato (XX) XXXXX-XXXX')
+    company_name = StringField('Nome da Empresa', validators=[DataRequired()])
+    name = StringField('Nome', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Telefone', validators=[DataRequired()])
+    password = PasswordField('Senha', validators=[
+        DataRequired(),
+        Length(min=6, message='A senha deve ter pelo menos 6 caracteres')
+    ])
+    confirm_password = PasswordField('Confirmar Senha', validators=[
+        DataRequired(),
+        EqualTo('password', message='As senhas devem ser iguais')
     ])
 
 # Models
@@ -51,10 +57,11 @@ class Registration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     company_name = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    email = db.Column(db.String(120), nullable=False)
-    phone = db.Column(db.String(20))
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    password = db.Column(db.String(200), nullable=False)  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    assistant = db.relationship('Assistant', backref='registration', lazy=True, uselist=False)
+    assistant = db.relationship('Assistant', backref='registration', uselist=False)
 
 class Assistant(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,15 +96,24 @@ def index():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Verificar se o email já existe
+        if Registration.query.filter_by(email=form.email.data).first():
+            flash('Este email já está cadastrado.', 'danger')
+            return render_template('register.html', form=form)
+            
         registration = Registration(
             company_name=form.company_name.data,
             name=form.name.data,
             email=form.email.data,
-            phone=form.phone.data
+            phone=form.phone.data,
+            password=generate_password_hash(form.password.data)
         )
         db.session.add(registration)
         db.session.commit()
-        flash('Cadastro realizado com sucesso!', 'success')
+        
+        # Fazer login automático após o registro
+        login_user(registration)
+        
         return redirect(url_for('assistant_form', registration_id=registration.id))
     return render_template('register.html', form=form)
 
