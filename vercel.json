@@ -3,7 +3,11 @@
     "builds": [
         {
             "src": "app.py",
-            "use": "@vercel/python"
+            "use": "@vercel/python",
+            "config": {
+                "maxLambdaSize": "15mb",
+                "runtime": "python3.9"
+            }
         }
     ],
     "routes": [
@@ -13,8 +17,10 @@
         }
     ],
     "env": {
-        "POSTGRES_URI": "postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres",
+        "FLASK_APP": "app.py",
         "FLASK_ENV": "production",
-        "FLASK_APP": "app.py"
+        "SECRET_KEY": "sua-chave-secreta-aqui",
+        "SQLALCHEMY_DATABASE_URI": "postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres",
+        "SQLALCHEMY_TRACK_MODIFICATIONS": "False"
     }
 }

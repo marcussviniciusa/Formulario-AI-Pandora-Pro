@@ -12,12 +12,13 @@ from wtforms.validators import DataRequired, Email, Length, Regexp, EqualTo
 load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'sua-chave-secreta-aqui'
 
-# Configuração do PostgreSQL
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('POSTGRES_URI', 'postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Configurações do Flask
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'sua-chave-secreta-aqui')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI', 'postgresql://postgres:Marcus1911!!Marcus@77.37.41.106:5432/postgres')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = os.getenv('SQLALCHEMY_TRACK_MODIFICATIONS', 'False').lower() == 'true'
 
+# Inicialização das extensões
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
