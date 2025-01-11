@@ -44,14 +44,14 @@ class Registration(db.Model):
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phone = db.Column(db.String(20), nullable=False)
-    password_hash = db.Column(db.String(256))  
+    password = db.Column(db.String(256), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        return check_password_hash(self.password, password)
 
 class IARequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -132,17 +132,16 @@ def register():
                 name=form.name.data,
                 email=form.email.data,
                 phone=form.phone.data,
+                password=generate_password_hash(form.password.data)
             )
-            registration.set_password(form.password.data)
             db.session.add(registration)
             db.session.commit()
             flash('Cadastro realizado com sucesso!', 'success')
             return redirect(url_for('success'))
         except Exception as e:
+            print(f"Error during registration: {str(e)}")
             db.session.rollback()
-            print(f"Error during registration: {str(e)}")  # For debugging
-            flash('Erro ao realizar cadastro. Tente novamente.', 'danger')
-            return render_template('register.html', form=form), 400
+            flash('Erro ao realizar cadastro. Por favor, tente novamente.', 'danger')
     return render_template('register.html', form=form)
 
 @app.route('/check_email', methods=['POST'])
