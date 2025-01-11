@@ -6,10 +6,24 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, EmailField
 from wtforms.validators import DataRequired, Email, Length, EqualTo, ValidationError
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key')
+
+# Database configuration
+if os.environ.get('VERCEL_ENV') == 'production':
+    # Use PostgreSQL in production (Vercel)
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+else:
+    # Use SQLite for local development
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
+
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
