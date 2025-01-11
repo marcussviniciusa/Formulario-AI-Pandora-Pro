@@ -1,4 +1,4 @@
-from app import app, db, Admin, generate_password_hash
+from app import app, db, User, generate_password_hash
 
 def init_db():
     with app.app_context():
@@ -7,9 +7,10 @@ def init_db():
         db.create_all()  # Cria todas as tabelas novamente
         
         # Criar admin padrão
-        admin = Admin(
+        admin = User(
             email='admin@pandorapro.com',
-            password=generate_password_hash('admin123')
+            password_hash=generate_password_hash('admin123'),
+            is_admin=True
         )
         db.session.add(admin)
         db.session.commit()

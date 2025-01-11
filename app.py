@@ -43,6 +43,7 @@ class Registration(db.Model):
     company_name = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(256))  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
@@ -76,6 +77,7 @@ class UserRegistrationForm(FlaskForm):
     company_name = StringField('Nome da Empresa', validators=[DataRequired(), Length(min=2, max=100)])
     name = StringField('Nome Completo', validators=[DataRequired(), Length(min=2, max=100)])
     email = EmailField('Email', validators=[DataRequired(), Email()])
+    phone = StringField('Telefone', validators=[DataRequired(), Length(min=10, max=20)])
     password = PasswordField('Senha', validators=[
         DataRequired(),
         Length(min=6, message='A senha deve ter pelo menos 6 caracteres')
@@ -129,6 +131,7 @@ def register():
                 company_name=form.company_name.data,
                 name=form.name.data,
                 email=form.email.data,
+                phone=form.phone.data,
             )
             registration.set_password(form.password.data)
             db.session.add(registration)
@@ -230,6 +233,7 @@ def edit_registration(id):
         registration.company_name = request.form['company_name']
         registration.name = request.form['name']
         registration.email = request.form['email']
+        registration.phone = request.form['phone']
         try:
             db.session.commit()
             flash('Registro atualizado com sucesso!', 'success')
