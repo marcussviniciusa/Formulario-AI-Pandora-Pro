@@ -43,16 +43,14 @@ class Registration(db.Model):
     company_name = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128))
+    password_hash = db.Column(db.String(256))  
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    @property
-    def password(self):
-        return self.password_hash
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
-    @password.setter
-    def password(self, value):
-        self.password_hash = value
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class IARequest(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -126,20 +124,22 @@ def index():
 def register():
     form = UserRegistrationForm()
     if form.validate_on_submit():
-        registration = Registration(
-            company_name=form.company_name.data,
-            name=form.name.data,
-            email=form.email.data,
-            password=form.password.data
-        )
-        db.session.add(registration)
         try:
+            registration = Registration(
+                company_name=form.company_name.data,
+                name=form.name.data,
+                email=form.email.data,
+            )
+            registration.set_password(form.password.data)
+            db.session.add(registration)
             db.session.commit()
             flash('Cadastro realizado com sucesso!', 'success')
             return redirect(url_for('success'))
-        except:
+        except Exception as e:
             db.session.rollback()
+            print(f"Error during registration: {str(e)}")  # For debugging
             flash('Erro ao realizar cadastro. Tente novamente.', 'danger')
+            return render_template('register.html', form=form), 400
     return render_template('register.html', form=form)
 
 @app.route('/check_email', methods=['POST'])
@@ -203,7 +203,7 @@ def admin_login():
     form = AdminLoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and check_password_hash(user.password_hash, form.password.data):
+        if user and user.check_password(form.password.data):
             login_user(user)
             return redirect(url_for('admin_dashboard'))
         flash('Email ou senha inválidos', 'danger')
