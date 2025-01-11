@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Criar IA - Pandora Pro{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-custom">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <img src="{{ url_for('static', filename='img/logo.webp') }}" 
+                             alt="Pandora Pro Logo" 
+                             class="img-fluid mb-4" 
+                             style="max-width: 180px;">
+                        <h1 class="display-4">Criar sua IA</h1>
+                        <p class="lead text-muted">Configure sua Inteligência Artificial personalizada</p>
+                    </div>
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('create_ia') }}">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-4">
+                            {{ form.email.label(class="form-label") }}
+                            {{ form.email(class="form-control form-control-lg", placeholder="Seu email") }}
+                            {% if form.email.errors %}
+                                {% for error in form.email.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control form-control-lg", placeholder="Nome da sua IA") }}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.specialization.label(class="form-label") }}
+                            {{ form.specialization(class="form-control form-control-lg", placeholder="Ex: Vendas, Suporte, Marketing") }}
+                            {% if form.specialization.errors %}
+                                {% for error in form.specialization.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.target_audience.label(class="form-label") }}
+                            {{ form.target_audience(class="form-control", rows="3", placeholder="Descreva seu público-alvo") }}
+                            {% if form.target_audience.errors %}
+                                {% for error in form.target_audience.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.personality.label(class="form-label") }}
+                            {{ form.personality(class="form-control", rows="3", placeholder="Como sua IA deve se comportar?") }}
+                            {% if form.personality.errors %}
+                                {% for error in form.personality.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.achievements.label(class="form-label") }}
+                            {{ form.achievements(class="form-control", rows="3", placeholder="Principais conquistas da empresa") }}
+                            {% if form.achievements.errors %}
+                                {% for error in form.achievements.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.products_services.label(class="form-label") }}
+                            {{ form.products_services(class="form-control", rows="3", placeholder="Liste seus produtos e serviços") }}
+                            {% if form.products_services.errors %}
+                                {% for error in form.products_services.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.initial_question.label(class="form-label") }}
+                            {{ form.initial_question(class="form-control", rows="2", placeholder="Primeira pergunta que a IA deve fazer") }}
+                            {% if form.initial_question.errors %}
+                                {% for error in form.initial_question.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.client_pain_points.label(class="form-label") }}
+                            {{ form.client_pain_points(class="form-control", rows="3", placeholder="Principais problemas dos clientes") }}
+                            {% if form.client_pain_points.errors %}
+                                {% for error in form.client_pain_points.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.solutions.label(class="form-label") }}
+                            {{ form.solutions(class="form-control", rows="3", placeholder="Como seus produtos/serviços resolvem estes problemas") }}
+                            {% if form.solutions.errors %}
+                                {% for error in form.solutions.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.differentials.label(class="form-label") }}
+                            {{ form.differentials(class="form-control", rows="3", placeholder="O que diferencia sua empresa da concorrência") }}
+                            {% if form.differentials.errors %}
+                                {% for error in form.differentials.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.purchase_process.label(class="form-label") }}
+                            {{ form.purchase_process(class="form-control", rows="3", placeholder="Como funciona o processo de compra") }}
+                            {% if form.purchase_process.errors %}
+                                {% for error in form.purchase_process.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.common_objections.label(class="form-label") }}
+                            {{ form.common_objections(class="form-control", rows="3", placeholder="Objeções comuns dos clientes e como responder") }}
+                            {% if form.common_objections.errors %}
+                                {% for error in form.common_objections.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.purchase_links.label(class="form-label") }}
+                            {{ form.purchase_links(class="form-control", rows="2", placeholder="Links para compra dos produtos/serviços") }}
+                            {% if form.purchase_links.errors %}
+                                {% for error in form.purchase_links.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.urgency.label(class="form-label") }}
+                            {{ form.urgency(class="form-control", rows="2", placeholder="Motivos para o cliente comprar agora") }}
+                            {% if form.urgency.errors %}
+                                {% for error in form.urgency.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.payment_methods.label(class="form-label") }}
+                            {{ form.payment_methods(class="form-control", rows="2", placeholder="Formas de pagamento aceitas") }}
+                            {% if form.payment_methods.errors %}
+                                {% for error in form.payment_methods.errors %}
+                                    <div class="text-danger">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-robot me-2"></i>Criar IA
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

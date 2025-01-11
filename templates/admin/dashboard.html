@@ -1,184 +1,152 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard Administrativo - Pandora Pro{% endblock %}
+{% block title %}Dashboard - Pandora Pro{% endblock %}
 
 {% block content %}
 <div class="container-fluid py-4">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="card shadow-custom">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                    <h2 class="h4 mb-0">Dashboard Administrativo</h2>
-                    <a href="{{ url_for('admin_logout') }}" class="btn btn-light">
-                        <i class="fas fa-sign-out-alt me-2"></i>Sair
-                    </a>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Dashboard Administrativo</h1>
+        <a href="{{ url_for('admin_logout') }}" class="btn btn-outline-danger">
+            <i class="fas fa-sign-out-alt me-2"></i>Sair
+        </a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Empresa</th>
-                                    <th>Nome</th>
-                                    <th>Email</th>
-                                    <th>Telefone</th>
-                                    <th>Senha</th>
-                                    <th>Data de Registro</th>
-                                    <th>IA Criada</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for registration in registrations %}
-                                <tr>
-                                    <td>{{ registration.id }}</td>
-                                    <td>{{ registration.company_name }}</td>
-                                    <td>{{ registration.name }}</td>
-                                    <td>{{ registration.email }}</td>
-                                    <td>{{ registration.phone }}</td>
-                                    <td>{{ registration.plain_password }}</td>
-                                    <td>{{ registration.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
-                                    <td>
-                                        {% if registration.assistant %}
-                                            <span class="badge bg-success">Sim</span>
-                                        {% else %}
-                                            <span class="badge bg-warning">Não</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        <a href="{{ url_for('admin_edit_registration', registration_id=registration.id) }}" 
-                                           class="btn btn-sm btn-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-users me-2"></i>Registros e Solicitações de IA
+            </h2>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Empresa</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Senha</th>
+                            <th>Status IA</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in registrations %}
+                        {% set ia = ia_requests|selectattr('email', 'equalto', reg.email)|first %}
+                        <tr>
+                            <td>{{ reg.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                            <td>{{ reg.company_name }}</td>
+                            <td>{{ reg.name }}</td>
+                            <td>{{ reg.email }}</td>
+                            <td>
+                                <div class="input-group">
+                                    <input type="text" class="form-control form-control-sm" value="{{ reg.password_hash }}" readonly>
+                                    <button class="btn btn-sm btn-outline-secondary copy-btn" data-clipboard-text="{{ reg.password_hash }}">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </td>
+                            <td>
+                                {% if ia %}
+                                    <span class="badge bg-success">IA Criada</span>
+                                {% else %}
+                                    <span class="badge bg-warning">Pendente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-sm btn-outline-primary copy-all-btn" 
+                                            data-copy-text="Empresa: {{ reg.company_name }}&#13;&#10;Nome: {{ reg.name }}&#13;&#10;Email: {{ reg.email }}&#13;&#10;Senha: {{ reg.password_hash }}{% if ia %}&#13;&#10;&#13;&#10;=== Dados da IA ===&#13;&#10;Nome da IA: {{ ia.name }}&#13;&#10;Especialização: {{ ia.specialization }}&#13;&#10;Público-Alvo: {{ ia.target_audience }}&#13;&#10;Personalidade: {{ ia.personality }}&#13;&#10;Conquistas: {{ ia.achievements }}&#13;&#10;Produtos/Serviços: {{ ia.products_services }}&#13;&#10;Pergunta Inicial: {{ ia.initial_question }}&#13;&#10;Dores dos Clientes: {{ ia.client_pain_points }}&#13;&#10;Soluções: {{ ia.solutions }}&#13;&#10;Diferenciais: {{ ia.differentials }}&#13;&#10;Processo de Compra: {{ ia.purchase_process }}&#13;&#10;Objeções Comuns: {{ ia.common_objections }}&#13;&#10;Links de Compra: {{ ia.purchase_links }}&#13;&#10;Motivos de Urgência: {{ ia.urgency }}&#13;&#10;Formas de Pagamento: {{ ia.payment_methods }}{% endif %}">
+                                        <i class="fas fa-copy me-1"></i>Copiar Tudo
+                                    </button>
+                                    {% if ia %}
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-info"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#iaModal{{ ia.id }}">
+                                        <i class="fas fa-eye me-1"></i>Ver IA
+                                    </button>
+                                    {% endif %}
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal{{ reg.id }}">
+                                        <i class="fas fa-trash me-1"></i>Excluir
+                                    </button>
+                                </div>
+
+                                <!-- Modal de confirmação de exclusão -->
+                                <div class="modal fade" id="deleteModal{{ reg.id }}" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Confirmar Exclusão</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Tem certeza que deseja excluir o registro de <strong>{{ reg.name }}</strong>?</p>
+                                                {% if ia %}
+                                                <p class="text-danger">A IA associada a este registro também será excluída!</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <form action="{{ url_for('delete_registration', id=reg.id) }}" method="POST" style="display: inline;">
+                                                    <button type="submit" class="btn btn-danger">Confirmar Exclusão</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center">Nenhum registro encontrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
-{% block scripts %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 <script>
-let deleteRegistrationId = null;
-const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-
-function viewAssistant(registrationId) {
-    fetch(`/adm/assistant/${registrationId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar dados do assistente');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.assistant) {
-                const fields = [
-                    ['Nome do Assistente', data.assistant.name],
-                    ['Especialização', data.assistant.specialization],
-                    ['Público-alvo', data.assistant.target_audience],
-                    ['Personalidade', data.assistant.personality],
-                    ['Produtos e Serviços', data.assistant.products_services],
-                    ['Pergunta Inicial', data.assistant.initial_question],
-                    ['Conquistas', data.assistant.achievements],
-                    ['Pontos de Dor', data.assistant.client_pain_points],
-                    ['Soluções', data.assistant.solutions],
-                    ['Diferenciais', data.assistant.differentials],
-                    ['Processo de Compra', data.assistant.purchase_process],
-                    ['Objeções Comuns', data.assistant.common_objections],
-                    ['Links de Compra', data.assistant.purchase_links],
-                    ['Urgência', data.assistant.urgency],
-                    ['Formas de Pagamento', data.assistant.payment_methods]
-                ];
-
-                const details = `
-                    <div class="row">
-                        <div class="col-12">
-                            ${fields.map(([label, value]) => `
-                                <div class="mb-4">
-                                    <h5 class="mb-2">${label}</h5>
-                                    <p class="mb-0">${value || '-'}</p>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>`;
-                
-                document.getElementById('assistantDetails').innerHTML = details;
-                new bootstrap.Modal(document.getElementById('assistantModal')).show();
-            } else {
-                alert('Assistente não encontrado');
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao carregar dados do assistente');
-        });
-}
-
-function copyAssistantDetails() {
-    const detailsDiv = document.getElementById('assistantDetails');
-    const headers = detailsDiv.querySelectorAll('h5');
-    const paragraphs = detailsDiv.querySelectorAll('p');
-    let textToCopy = '';
-    
-    headers.forEach((header, index) => {
-        textToCopy += `${header.textContent.trim()}\n${paragraphs[index].textContent.trim()}\n\n`;
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializa o clipboard.js para os botões de copiar
+    new ClipboardJS('.copy-btn');
+    new ClipboardJS('.copy-all-btn', {
+        text: function(trigger) {
+            return trigger.getAttribute('data-copy-text');
+        }
     });
-    
-    navigator.clipboard.writeText(textToCopy)
-        .then(() => {
-            // Feedback visual
-            const copyBtn = document.querySelector('.modal-header .btn-primary');
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<i class="fas fa-check me-2"></i>Copiado!';
+
+    // Adiciona feedback visual ao copiar
+    document.querySelectorAll('.copy-btn, .copy-all-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-check"></i>';
             setTimeout(() => {
-                copyBtn.innerHTML = originalText;
+                this.innerHTML = originalText;
             }, 2000);
-        })
-        .catch(err => {
-            console.error('Erro ao copiar texto:', err);
-            alert('Erro ao copiar texto. Por favor, tente novamente.');
         });
-}
-
-function deleteRegistration(registrationId) {
-    deleteRegistrationId = registrationId;
-    deleteModal.show();
-}
-
-document.getElementById('confirmDelete').addEventListener('click', function() {
-    if (deleteRegistrationId) {
-        fetch(`/adm/registration/${deleteRegistrationId}`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao excluir registro');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Erro ao excluir registro');
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            alert('Erro ao excluir registro');
-        });
-    }
-    deleteModal.hide();
+    });
 });
 </script>
 {% endblock %}
